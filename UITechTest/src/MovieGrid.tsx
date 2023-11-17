@@ -1,10 +1,10 @@
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { Movie, MovieCompany } from './App';
+import { Movie, MovieCompany } from './lib/types';
 
 const columns: GridColDef[] = [
-  { field: 'title', headerName: 'Title', width: 150 },
+  { field: 'title', headerName: 'Title', width: 450 },
   { field: 'score', headerName: 'Avg. Score', width: 150 },
-  { field: 'company', headerName: 'Company', width: 150 },
+  { field: 'company', headerName: 'Company', width: 450 },
 ];
 
 type Props = {
@@ -17,7 +17,9 @@ export default function MovieGrid({ movies, companies, handleRowClick }: Props) 
   const rows = movies.map((movie) => ({
     id: parseInt(movie.id, 10),
     title: movie.title,
-    score: (movie.reviews.reduce((acc, val) => acc + val, 0) / movie.reviews.length).toFixed(1),
+    score: (
+      movie.reviews.reduce((acc: number, val: number) => acc + val, 0) / movie.reviews.length
+    ).toFixed(1),
     company: companies.find((company) => company.id === movie.filmCompanyId)?.name,
   }));
 

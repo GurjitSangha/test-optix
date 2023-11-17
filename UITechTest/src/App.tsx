@@ -4,47 +4,25 @@ import { useBoolean } from 'react-use';
 import { createReducer } from '@reduxjs/toolkit';
 import { Button } from '@mui/material';
 import MovieGrid from './MovieGrid';
+import { Movie, MovieCompany } from './lib/types';
+import { useGetMovieCompaniesQuery, useGetMoviesQuery } from './lib/api';
 
-// TODO: use https://giddy-beret-cod.cyclic.app/movieCompanies
-export type MovieCompany = {
-  id: string;
-  name: string;
+const getMovieCompanies = () => {
+  const { data, isLoading, error } = useGetMovieCompaniesQuery();
+  return [data, isLoading, error];
 };
-const mockMovieCompanyData: MovieCompany[] = [{ id: '1', name: 'Test Productions' }];
-
-export type Movie = {
-  id: string;
-  reviews: number[];
-  title: string;
-  filmCompanyId: string;
-  cost: number;
-  releaseYear: number;
+const getMovies = () => {
+  const { data, isLoading, error } = useGetMoviesQuery();
+  return [data, isLoading, error];
 };
-// TODO: use https://giddy-beret-cod.cyclic.app/movies
-const mockMovieData: Movie[] = [
-  {
-    id: '1',
-    reviews: [6, 8, 3, 9, 8, 7, 8],
-    title: 'A Testing Film',
-    filmCompanyId: '1',
-    cost: 534,
-    releaseYear: 2005,
-  },
-  {
-    id: '2',
-    reviews: [5, 7, 3, 4, 1, 6, 3],
-    title: 'Mock Test Film',
-    filmCompanyId: '1',
-    cost: 6234,
-    releaseYear: 2006,
-  },
-];
 
 export const App = () => {
   const [selectedMovieId, setSelectedMovieId] = useState('');
+  const [companiesData, companiesAreLoading, companiesError] = getMovieCompanies();
+  const [moviesData, moviesAreLoading, moviesError] = getMovies();
 
   const refreshButton = (buttonText: any) => {
-    if (mockMovieCompanyData) {
+    if (companiesData) {
       return <Button variant="contained">{buttonText}</Button>;
     } else {
       return <p>No movies loaded yet</p>;
@@ -56,33 +34,35 @@ export const App = () => {
     setSelectedMovieId(movieId);
   };
 
+  if (companiesAreLoading || moviesAreLoading) {
+    return (
+      <div>
+        <h2>Loading...</h2>
+      </div>
+    );
+  }
+
+  if (companiesError || !Array.isArray(companiesData)) {
+    return (
+      <div>
+        <h2>Error fetching movie companies</h2>
+      </div>
+    );
+  }
+  if (moviesError || !Array.isArray(moviesData)) {
+    return (
+      <div>
+        <h2>Error fetching movies</h2>
+      </div>
+    );
+  }
+
   return (
     <div>
       <h2>Welcome to Movie database!</h2>
       {refreshButton('Refresh')}
-      <p>Total movies displayed {mockMovieData?.length}</p>
-      <MovieGrid
-        movies={mockMovieData}
-        companies={mockMovieCompanyData}
-        handleRowClick={handleRowClick}
-      />
-      {/* <span>Title - Review - Film Company</span>
-      <br />
-      {mockMovieData.map((movie: any) => (
-        <span
-          onClick={() => {
-            setSelectedMovie(movie);
-          }}
-        >
-          {movie.title}{' '}
-          {movie.reviews
-            .reduce((acc: any, i: any) => (acc + i) / movie.reviews.length, 0)
-            ?.toString()
-            .substring(0, 3)}{' '}
-          {mockMovieCompanyData.find((f: any) => f.id === movie.filmCompanyId)?.name}
-          <br />
-        </span>
-      ))} */}
+      <p>Total movies displayed {moviesData?.length}</p>
+      <MovieGrid movies={moviesData} companies={companiesData} handleRowClick={handleRowClick} />
       {/* <br />
       <div>
         {selectedMovie
