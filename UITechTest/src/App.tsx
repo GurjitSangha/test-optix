@@ -2,10 +2,11 @@ import { useRef, useState, Children } from 'react';
 import { easeIn, easeOut } from 'polished';
 import { useBoolean } from 'react-use';
 import { createReducer } from '@reduxjs/toolkit';
-import { Button } from '@mui/material';
-import MovieGrid from './MovieGrid';
+import { Button, Container } from '@mui/material';
+import MovieGrid from './components/MovieGrid';
 import { Movie, MovieCompany } from './lib/types';
 import { useGetMovieCompaniesQuery, useGetMoviesQuery } from './lib/api';
+import ReviewForm from './components/ReviewForm';
 
 const getMovieCompanies = () => {
   const { data, isLoading, error } = useGetMovieCompaniesQuery();
@@ -17,7 +18,7 @@ const getMovies = () => {
 };
 
 export const App = () => {
-  const [selectedMovieId, setSelectedMovieId] = useState('');
+  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
   const [companiesData, companiesAreLoading, companiesError] = getMovieCompanies();
   const [moviesData, moviesAreLoading, moviesError] = getMovies();
 
@@ -30,56 +31,41 @@ export const App = () => {
   };
 
   const handleRowClick = (movieId: string) => {
-    if (movieId === selectedMovieId) return;
-    setSelectedMovieId(movieId);
+    if (!Array.isArray(moviesData) || movieId === selectedMovie?.id) return;
+    const movie = moviesData.find((movie) => movie?.id === movieId);
+    setSelectedMovie(movie || null);
   };
 
   if (companiesAreLoading || moviesAreLoading) {
     return (
-      <div>
+      <Container maxWidth="md">
         <h2>Loading...</h2>
-      </div>
+      </Container>
     );
   }
 
   if (companiesError || !Array.isArray(companiesData)) {
     return (
-      <div>
+      <Container maxWidth="md">
         <h2>Error fetching movie companies</h2>
-      </div>
+      </Container>
     );
   }
   if (moviesError || !Array.isArray(moviesData)) {
     return (
-      <div>
+      <Container maxWidth="md">
         <h2>Error fetching movies</h2>
-      </div>
+      </Container>
     );
   }
 
   return (
-    <div>
+    <Container maxWidth="md">
       <h2>Welcome to Movie database!</h2>
       {refreshButton('Refresh')}
       <p>Total movies displayed {moviesData?.length}</p>
       <MovieGrid movies={moviesData} companies={companiesData} handleRowClick={handleRowClick} />
-      {/* <br />
-      <div>
-        {selectedMovie
-          ? (selectedMovie.title as any)
-            ? (('You have selected ' + selectedMovie.title) as any)
-            : 'No Movie Title'
-          : 'No Movie Seelcted'}
-        {selectedMovie && <p>Please leave a review below</p>}
-        {selectedMovie && (
-          <form onSubmit={() => {}}>
-            <label>
-              Review:
-              <input type="text" />
-            </label>
-          </form>
-        )}
-      </div> */}
-    </div>
+      {selectedMovie ? <ReviewForm movie={selectedMovie} /> : <p>No Movie Selected</p>}
+    </Container>
   );
 };

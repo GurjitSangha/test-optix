@@ -11,3 +11,7 @@ export type MovieCompany = {
   id: string;
   name: string;
 };
+
+export type SubmitReviewResponse = {
+  message: string;
+};
