@@ -7,6 +7,7 @@ import MovieGrid from './components/MovieGrid';
 import { Movie, MovieCompany } from './lib/types';
 import { useGetMovieCompaniesQuery, useGetMoviesQuery } from './lib/api';
 import ReviewForm from './components/ReviewForm';
+import ResponsiveReviewForm from './components/ResponsiveReviewForm';
 
 const getMovieCompanies = () => {
   const { data, isLoading, error } = useGetMovieCompaniesQuery();
@@ -65,7 +66,13 @@ export const App = () => {
       {refreshButton('Refresh')}
       <p>Total movies displayed {moviesData?.length}</p>
       <MovieGrid movies={moviesData} companies={companiesData} handleRowClick={handleRowClick} />
-      {selectedMovie ? <ReviewForm movie={selectedMovie} /> : <p>No Movie Selected</p>}
+      {selectedMovie ? (
+        <ResponsiveReviewForm>
+          <ReviewForm movie={selectedMovie} />
+        </ResponsiveReviewForm>
+      ) : (
+        <p>No Movie Selected</p>
+      )}
     </Container>
   );
 };

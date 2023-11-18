@@ -3,6 +3,7 @@ import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { Movie } from '../lib/types';
 import { usePostReviewMutation } from '../lib/api';
 import { useState } from 'react';
+import { useMedia } from 'react-use';
 
 interface IFormInput {
   review: string;
@@ -22,6 +23,7 @@ export default function ReviewForm({ movie }: Props) {
   });
   const [postReview] = usePostReviewMutation();
   const [reviewResponse, setReviewResponse] = useState('');
+  const isMobile = useMedia('(max-width: 480px)');
 
   const onSubmit: SubmitHandler<IFormInput> = (formData) => {
     setReviewResponse('Posting review...');
@@ -41,7 +43,9 @@ export default function ReviewForm({ movie }: Props) {
     <>
       <h4>{movie.title}</h4>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+        <Box
+          sx={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: 'center' }}
+        >
           <Controller
             control={control}
             name="review"
@@ -50,7 +54,12 @@ export default function ReviewForm({ movie }: Props) {
             )}
             rules={{ required: true, maxLength: reviewMaxLength }}
           />
-          <Button type="submit" variant="contained" sx={{ mx: 4 }} disabled={!!errors.review}>
+          <Button
+            type="submit"
+            variant="contained"
+            sx={{ mx: 4, my: isMobile ? 2 : 0 }}
+            disabled={!!errors.review}
+          >
             Submit
           </Button>
           {reviewResponse && <p>{reviewResponse}</p>}
