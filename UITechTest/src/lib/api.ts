@@ -22,3 +22,33 @@ export const movieApi = createApi({
 });
 
 export const { useGetMoviesQuery, useGetMovieCompaniesQuery, usePostReviewMutation } = movieApi;
+
+export const getData = () => {
+  const {
+    data: companiesData,
+    isLoading: companiesAreLoading,
+    isError: companiesError,
+    refetch: companiesRefetch,
+  } = useGetMovieCompaniesQuery();
+  const {
+    data: moviesData,
+    isLoading: moviesAreLoading,
+    isError: moviesError,
+    refetch: moviesRefetch,
+  } = useGetMoviesQuery();
+
+  return {
+    data: {
+      movies: moviesData,
+      companies: companiesData,
+    },
+    isLoading: moviesAreLoading || companiesAreLoading,
+    isError: companiesError || moviesError,
+    refetch: () => {
+      if (typeof companiesRefetch === 'function' && typeof moviesRefetch === 'function') {
+        companiesRefetch();
+        moviesRefetch();
+      }
+    },
+  };
+};

@@ -1,43 +1,34 @@
-import { useRef, useState, Children } from 'react';
-import { easeIn, easeOut } from 'polished';
-import { useBoolean } from 'react-use';
-import { createReducer } from '@reduxjs/toolkit';
 import { Button, Container } from '@mui/material';
+import { useState } from 'react';
 import MovieGrid from './components/MovieGrid';
-import { Movie, MovieCompany } from './lib/types';
-import { useGetMovieCompaniesQuery, useGetMoviesQuery } from './lib/api';
-import ReviewForm from './components/ReviewForm';
 import ResponsiveReviewForm from './components/ResponsiveReviewForm';
-
-const getMovieCompanies = () => {
-  const { data, isLoading, error } = useGetMovieCompaniesQuery();
-  return [data, isLoading, error];
-};
-const getMovies = () => {
-  const { data, isLoading, error } = useGetMoviesQuery();
-  return [data, isLoading, error];
-};
+import ReviewForm from './components/ReviewForm';
+import { getData } from './lib/api';
+import { Movie } from './lib/types';
 
 export const App = () => {
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
-  const [companiesData, companiesAreLoading, companiesError] = getMovieCompanies();
-  const [moviesData, moviesAreLoading, moviesError] = getMovies();
+  const { data, isLoading, isError, refetch } = getData();
 
   const refreshButton = (buttonText: any) => {
-    if (companiesData) {
-      return <Button variant="contained">{buttonText}</Button>;
+    if (data) {
+      return (
+        <Button variant="contained" onClick={() => refetch()}>
+          {buttonText}
+        </Button>
+      );
     } else {
       return <p>No movies loaded yet</p>;
     }
   };
 
   const handleRowClick = (movieId: string) => {
-    if (!Array.isArray(moviesData) || movieId === selectedMovie?.id) return;
-    const movie = moviesData.find((movie) => movie?.id === movieId);
+    if (!Array.isArray(data.movies) || movieId === selectedMovie?.id) return;
+    const movie = data.movies.find((movie) => movie?.id === movieId);
     setSelectedMovie(movie || null);
   };
 
-  if (companiesAreLoading || moviesAreLoading) {
+  if (isLoading) {
     return (
       <Container maxWidth="md">
         <h2>Loading...</h2>
@@ -45,17 +36,11 @@ export const App = () => {
     );
   }
 
-  if (companiesError || !Array.isArray(companiesData)) {
+  if (isError || !Array.isArray(data?.movies) || !Array.isArray(data?.companies)) {
     return (
       <Container maxWidth="md">
-        <h2>Error fetching movie companies</h2>
-      </Container>
-    );
-  }
-  if (moviesError || !Array.isArray(moviesData)) {
-    return (
-      <Container maxWidth="md">
-        <h2>Error fetching movies</h2>
+        <h2>Error fetching movie data</h2>
+        {refreshButton('Refresh')}
       </Container>
     );
   }
@@ -64,8 +49,12 @@ export const App = () => {
     <Container maxWidth="md">
       <h2>Welcome to Movie database!</h2>
       {refreshButton('Refresh')}
-      <p>Total movies displayed {moviesData?.length}</p>
-      <MovieGrid movies={moviesData} companies={companiesData} handleRowClick={handleRowClick} />
+      <p>Total movies displayed {data?.movies?.length}</p>
+      <MovieGrid
+        movies={data?.movies}
+        companies={data?.companies}
+        handleRowClick={handleRowClick}
+      />
       {selectedMovie ? (
         <ResponsiveReviewForm>
           <ReviewForm movie={selectedMovie} />
