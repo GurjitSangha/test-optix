@@ -13,7 +13,7 @@ type Props = {
   handleRowClick: (movieId: string) => void;
 };
 export default function MovieGrid({ movies, companies, handleRowClick }: Props) {
-  if (!movies || movies.length === 0) return;
+  if (!movies || movies.length === 0) return null;
   const rows = movies.map((movie) => ({
     id: movie.id,
     title: movie.title,

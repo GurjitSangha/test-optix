@@ -21,9 +21,11 @@ export const movieApi = createApi({
   }),
 });
 
-export const { useGetMoviesQuery, useGetMovieCompaniesQuery, usePostReviewMutation } = movieApi;
+const { useGetMoviesQuery, useGetMovieCompaniesQuery } = movieApi;
+export const { usePostReviewMutation } = movieApi;
 
 export const getData = () => {
+  // Get the data from the two endpoints
   const {
     data: companiesData,
     isLoading: companiesAreLoading,
@@ -37,6 +39,7 @@ export const getData = () => {
     refetch: moviesRefetch,
   } = useGetMoviesQuery();
 
+  // Return an object with the combined data, loading states, errors and refetch function
   return {
     data: {
       movies: moviesData,

@@ -1,5 +1,5 @@
 import { Button, Dialog, DialogContent } from '@mui/material';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useMedia } from 'react-use';
 
 type Props = {
@@ -7,20 +7,27 @@ type Props = {
 };
 export default function ResponsiveReviewForm({ children }: Props) {
   const isMobile = useMedia('(max-width: 480px)');
-  const [openModal, setOpenModal] = useState(true);
+  const [openDialog, setOpenDialog] = useState(true);
+
+  // Renders the child with the additional isMobile prop, to avoid reusing useMedia hook
+  const renderChildren = () => {
+    return React.cloneElement(children, {
+      isMobile,
+    });
+  };
 
   if (isMobile) {
     return (
       <>
-        <Button variant="contained" onClick={() => setOpenModal(true)} sx={{ mt: 2 }}>
+        <Button variant="contained" onClick={() => setOpenDialog(true)} sx={{ mt: 2 }}>
           Post Review
         </Button>
-        <Dialog open={openModal} onClose={() => setOpenModal(false)}>
-          <DialogContent>{children}</DialogContent>
+        <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+          <DialogContent>{renderChildren()}</DialogContent>
         </Dialog>
       </>
     );
   }
 
-  return <div>{children}</div>;
+  return <div>{renderChildren()}</div>;
 }

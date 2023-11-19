@@ -1,17 +1,17 @@
 import { Box, Button, TextField } from '@mui/material';
-import { Controller, SubmitHandler, useForm } from 'react-hook-form';
-import { Movie } from '../lib/types';
-import { usePostReviewMutation } from '../lib/api';
 import { useState } from 'react';
-import { useMedia } from 'react-use';
+import { Controller, SubmitHandler, useForm } from 'react-hook-form';
+import { usePostReviewMutation } from '../lib/api';
+import { Movie } from '../lib/types';
 
 interface IFormInput {
   review: string;
 }
 type Props = {
   movie: Movie;
+  isMobile?: boolean;
 };
-export default function ReviewForm({ movie }: Props) {
+export default function ReviewForm({ movie, isMobile = false }: Props) {
   const {
     control,
     handleSubmit,
@@ -23,7 +23,6 @@ export default function ReviewForm({ movie }: Props) {
   });
   const [postReview] = usePostReviewMutation();
   const [reviewResponse, setReviewResponse] = useState('');
-  const isMobile = useMedia('(max-width: 480px)');
 
   const onSubmit: SubmitHandler<IFormInput> = (formData) => {
     setReviewResponse('Posting review...');

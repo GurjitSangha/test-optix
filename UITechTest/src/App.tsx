@@ -10,24 +10,24 @@ export const App = () => {
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
   const { data, isLoading, isError, refetch } = getData();
 
-  const refreshButton = (buttonText: any) => {
-    if (data) {
-      return (
-        <Button variant="contained" onClick={() => refetch()}>
-          {buttonText}
-        </Button>
-      );
-    } else {
-      return <p>No movies loaded yet</p>;
-    }
+  const refreshButton = () => {
+    if (!data) return <p>No movie data</p>;
+
+    return (
+      <Button variant="contained" onClick={() => refetch()}>
+        Refresh
+      </Button>
+    );
   };
 
   const handleRowClick = (movieId: string) => {
+    // Check if we have movie data, and we're not clicking on the current movie
     if (!Array.isArray(data.movies) || movieId === selectedMovie?.id) return;
     const movie = data.movies.find((movie) => movie?.id === movieId);
     setSelectedMovie(movie || null);
   };
 
+  // Loading State
   if (isLoading) {
     return (
       <Container maxWidth="md">
@@ -36,11 +36,12 @@ export const App = () => {
     );
   }
 
+  // Handle fetch error, or if data is not in array format
   if (isError || !Array.isArray(data?.movies) || !Array.isArray(data?.companies)) {
     return (
       <Container maxWidth="md">
         <h2>Error fetching movie data</h2>
-        {refreshButton('Refresh')}
+        {refreshButton()}
       </Container>
     );
   }
@@ -48,14 +49,11 @@ export const App = () => {
   return (
     <Container maxWidth="md">
       <h2>Welcome to Movie database!</h2>
-      {refreshButton('Refresh')}
-      <p>Total movies displayed {data?.movies?.length}</p>
-      <MovieGrid
-        movies={data?.movies}
-        companies={data?.companies}
-        handleRowClick={handleRowClick}
-      />
+      {refreshButton()}
+      <p>Total movies displayed: {data.movies.length}</p>
+      <MovieGrid movies={data.movies} companies={data.companies} handleRowClick={handleRowClick} />
       {selectedMovie ? (
+        // Use component composition to avoid prop drilling
         <ResponsiveReviewForm>
           <ReviewForm movie={selectedMovie} />
         </ResponsiveReviewForm>
