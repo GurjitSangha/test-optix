@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  optix-api:
+    build: starter-express-api
+    ports:
+      - '3000:3000'
+
+  optix-app:
+    build: UITechTest
+    ports:
+      - '5173:5173'
