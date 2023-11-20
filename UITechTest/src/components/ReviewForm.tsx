@@ -49,7 +49,13 @@ export default function ReviewForm({ movie, isMobile = false }: Props) {
             control={control}
             name="review"
             render={({ field }) => (
-              <TextField id="review" label="Review" error={!!errors.review} {...field} />
+              <TextField
+                id="review"
+                label="Review"
+                error={!!errors.review}
+                {...field}
+                helperText={`Must be less than ${reviewMaxLength} characters`}
+              />
             )}
             rules={{ required: true, maxLength: reviewMaxLength }}
           />
